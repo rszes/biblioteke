@@ -76,11 +76,11 @@ int8_t keypadScan()
             }
         
 		
-      	for (uint8_t i = 0; i < 4; i++)
-          	if (_cols[i] < 8)
-      			PORTD |= (1 << _cols[i]);
+      	for (uint8_t j = 0; j < 4; j++)
+          	if (_cols[j] < 8)
+      			PORTD |= (1 << _cols[j]);
       		else
-      			PORTB |= (1 << (_cols[i] - 8));
+      			PORTB |= (1 << (_cols[j] - 8));
       
 		//nizi nibl predstavlja vrstu, a visi stanja tastera:
       	uint8_t tmp1 = (~tmp) << 4;
