@@ -2,23 +2,30 @@
 
 #define GET_BIT(x, pos) ((x & (1 << pos)) >> pos)
 
+uint8_t _rows[4];
+uint8_t _cols[4];
+
 void keypadInit(uint8_t *rows, uint8_t *cols)
 {
+	// pravljenje lokalnih kopija
+	memcpy(_rows, rows, 4);
+	memcpy(_cols, cols, 4);
+
 	//PUD = 0 (pull-up otpornici su ukljuceni)
 	MCUCR &= ~0x10;
-	
-	for (int i = 0; i < 4; i++)
-      	if (cols[i] < 8)
-      		DDRD &= (0 << cols[i]);
+
+	for (uint8_t i = 0; i < 4; i++)
+      	if (_cols[i] < 8)
+      		DDRD &= (0 << _cols[i]);
       	else
-      		DDRB &= (0 << (cols[i] - 8));
+      		DDRB &= (0 << (_cols[i] - 8));
   	
   	// Inicijalizacija porta D
-  	for (int i = 0; i < 4; i++)
-      	if (cols[i] < 8)
-      		PORTD |= (1 << cols[i]);
+  	for (uint8_t i = 0; i < 4; i++)
+      	if (_cols[i] < 8)
+      		PORTD |= (1 << _cols[i]);
       	else
-      		PORTB |= (1 << (cols[i] - 8));
+      		PORTB |= (1 << (_cols[i] - 8));
 }
 
 int8_t keypadScan()
@@ -31,23 +38,23 @@ int8_t keypadScan()
 	{
 		//aktiviranje vrste
      	for(uint8_t j = 0; j < 4; j++)
-        	if (rows[j] < 8)
-      			DDRD &= (0 << rows[j]);
+        	if (_rows[j] < 8)
+      			DDRD &= (0 << _rows[j]);
       		else
-      			DDRB &= (0 << (rows[j] - 8));
+      			DDRB &= (0 << (_rows[j] - 8));
         
-		if (rows[i] < 8)
-   			DDRD |= (1 << rows[i]);
+		if (_rows[i] < 8)
+   			DDRD |= (1 << _rows[i]);
    		else
-   			DDRB |= (1 << (rows[i] - 8));
+   			DDRB |= (1 << (_rows[i] - 8));
 		
 		_delay_ms(2);
       
       	uint8_t tmp = 0x00;
       	for (uint8_t j = 0; j < 4; j++)
-          	if (cols[j] < 8)
+          	if (_cols[j] < 8)
         	{
-              if (GET_BIT(PIND, cols[j]) == 1)
+              if (GET_BIT(PIND, _cols[j]) == 1)
               {
                   tmp |= 1 << (3 - j);
               }
@@ -58,7 +65,7 @@ int8_t keypadScan()
         	}
       		else
             {
-              if (GET_BIT(PINB, cols[j] - 8) == 1)
+              if (GET_BIT(PINB, (_cols[j] - 8)) == 1)
               {
                   tmp |= 1 << (3 - j);
               }
@@ -70,10 +77,10 @@ int8_t keypadScan()
         
 		
       	for (uint8_t i = 0; i < 4; i++)
-          	if (cols[i] < 8)
-      			PORTD |= (1 << cols[i]);
+          	if (_cols[i] < 8)
+      			PORTD |= (1 << _cols[i]);
       		else
-      			PORTB |= (1 << (cols[i] - 8));
+      			PORTB |= (1 << (_cols[i] - 8));
       
 		//nizi nibl predstavlja vrstu, a visi stanja tastera:
       	uint8_t tmp1 = (~tmp) << 4;
@@ -121,6 +128,6 @@ int8_t keypadScan()
 		}
       	row >>= 1;
 	}
-  
+
 	return key;
 }
